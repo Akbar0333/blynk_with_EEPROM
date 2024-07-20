@@ -1,0 +1,293 @@
+/* 
+ https://arduino.esp8266.com/stable/package_esp8266com_index.json
+ */
+
+#include <ESP8266WiFi.h> 
+#include <FirebaseESP8266.h>
+#include <EEPROM.h>
+#define ssid "Jio4 AS"  //WiFi SSID
+#define password "akbar392"  //WiFi Password
+#define FIREBASE_HOST "home-control-c3784-default-rtdb.firebaseio.com" //Your Firebase Project URL goes here without "http:" , "\" and "/"
+#define FIREBASE_AUTH "y8RNUxBlGAebWJRqcDWjKlzieCMMhL0LyV6LWnOQ" //Your Firebase Auth Token
+
+FirebaseData  firebaseData;
+
+// define the GPIO connected with Relays and switches
+#define Relay1  D1 //GPIO 16
+#define Relay2  D2 //GPIO 5
+#define Relay3  D3 //GPIO 4
+#define Relay4  D4 //GPIO 0
+#define Relay5  D5 //GPIO 16
+#define Relay6  D6 //GPIO 5
+#define Relay7  D7 //GPIO 4
+#define Relay8  D8 //GPIO 0
+    
+
+
+#define wifiLed D0 //GPIO 2
+
+int load1=0, load2=0, load3=0, load4=0, load5=0, load6=0, load7=0, load8=0;
+
+void setup() {  
+Serial.begin(9600);
+ EEPROM.begin(512);
+ Serial.begin(115200); 
+pinMode(Relay1, OUTPUT);   
+pinMode(Relay2, OUTPUT); 
+pinMode(Relay3, OUTPUT); 
+pinMode(Relay4, OUTPUT); 
+pinMode(Relay5, OUTPUT);   
+pinMode(Relay6, OUTPUT); 
+pinMode(Relay7, OUTPUT); 
+pinMode(Relay8, OUTPUT); 
+    
+pinMode(wifiLed, OUTPUT); 
+  load1 = EEPROM.read(1);
+  load2 = EEPROM.read(2);
+  load3 = EEPROM.read(3);
+  load4 = EEPROM.read(4);
+  load5 = EEPROM.read(5);
+  load6 = EEPROM.read(6);
+  load7 = EEPROM.read(7);
+  load8 = EEPROM.read(8); 
+
+  
+
+  
+WiFi.begin (ssid, password);
+Firebase.begin(FIREBASE_HOST,FIREBASE_AUTH);
+delay(100);
+  updateLed();
+
+}
+
+
+void loop() {
+
+if (WiFi.status() != WL_CONNECTED){ 
+    //Serial.println("WiFi Not Connected");
+    digitalWrite(wifiLed, LOW); //Turn off WiFi LED
+  }
+  else{ 
+    //Serial.println("WiFi Connected");
+    digitalWrite(wifiLed, HIGH); //Turn on WiFi LED
+}
+  
+
+
+Switch_Read();
+
+if(Firebase.get(firebaseData,"/L1")) {
+ if (firebaseData.dataType() == "string") {
+  
+ load1 = firebaseData.stringData().toInt();
+   updateLed();         
+ }
+}
+
+
+Switch_Read();
+if(Firebase.get(firebaseData,"/L2")) {
+ if (firebaseData.dataType() == "string") {
+  
+ load2 = firebaseData.stringData().toInt();
+  updateLed();            
+ }
+}
+ 
+
+Switch_Read();
+if(Firebase.get(firebaseData,"/L3")) {
+ if (firebaseData.dataType() == "string") {
+ 
+ load3 = firebaseData.stringData().toInt();
+  updateLed();            
+ }
+}
+
+
+Switch_Read();
+if(Firebase.get(firebaseData,"/L4")) {
+ if (firebaseData.dataType() == "string") {
+ 
+ load4 = firebaseData.stringData().toInt();
+   updateLed();           
+  }
+ }
+Switch_Read();
+  if(Firebase.get(firebaseData,"/L5")) {
+ if (firebaseData.dataType() == "string") {
+  
+ load5 = firebaseData.stringData().toInt();
+   updateLed();         
+ }
+}
+
+
+Switch_Read();
+if(Firebase.get(firebaseData,"/L6")) {
+ if (firebaseData.dataType() == "string") {
+  
+ load6 = firebaseData.stringData().toInt();
+  updateLed();            
+ }
+}
+ 
+
+Switch_Read();
+if(Firebase.get(firebaseData,"/L7")) {
+ if (firebaseData.dataType() == "string") {
+ 
+ load7 = firebaseData.stringData().toInt();
+  updateLed();            
+ }
+}
+
+
+Switch_Read();
+if(Firebase.get(firebaseData,"/L8")) {
+ if (firebaseData.dataType() == "string") {
+ 
+ load8 = firebaseData.stringData().toInt();
+   updateLed();           
+  }
+ }
+  
+
+ 
+}
+void Switch_Read(){
+     
+     
+     update_power_status();
+      load1 = !load1;
+      updateLed();
+      
+if(Firebase.setString(firebaseData, "/L1", String(load1))){
+    Serial.println("PASSED");
+    Serial.println("PATH: " + firebaseData.dataPath());
+    Serial.println("TYPE: " + firebaseData.dataType());
+    Serial.println("ETag: " + firebaseData.ETag());
+    Serial.println("------------------------------------");
+    Serial.println();
+  }else{
+    Serial.println("FAILED");
+    Serial.println("REASON: " + firebaseData.errorReason());
+    Serial.println("------------------------------------");
+    Serial.println();
+  }   
+      delay(300); 
+  
+
+      update_power_status();
+      load2 = !load2;
+      updateLed();
+      
+      
+if(Firebase.setString(firebaseData, "/L2", String(load2))){
+    Serial.println("PASSED");
+    Serial.println("PATH: " + firebaseData.dataPath());
+    Serial.println("TYPE: " + firebaseData.dataType());
+    Serial.println("ETag: " + firebaseData.ETag());
+    Serial.println("------------------------------------");
+    Serial.println();
+  }else{
+    Serial.println("FAILED");
+    Serial.println("REASON: " + firebaseData.errorReason());
+    Serial.println("------------------------------------");
+    Serial.println();
+  }  
+ delay(300);
+
+    
+
+      update_power_status();
+      load3 = !load3;
+      updateLed();
+    
+     
+if(Firebase.setString(firebaseData, "/L3", String(load3))){
+    Serial.println("PASSED");
+    Serial.println("PATH: " + firebaseData.dataPath());
+    Serial.println("TYPE: " + firebaseData.dataType());
+    Serial.println("ETag: " + firebaseData.ETag());
+    Serial.println("------------------------------------");
+    Serial.println();
+  }
+  else{
+    Serial.println("FAILED");
+    Serial.println("REASON: " + firebaseData.errorReason());
+    Serial.println("------------------------------------");
+    Serial.println();
+  } 
+  delay(300);
+ 
+ 
+
+      update_power_status();
+      load4 = !load4;
+       updateLed();
+    
+      
+if(Firebase.setString(firebaseData, "/L4", String(load4))){
+    Serial.println("PASSED");
+    Serial.println("PATH: " + firebaseData.dataPath());
+    Serial.println("TYPE: " + firebaseData.dataType());
+    Serial.println("ETag: " + firebaseData.ETag());
+    Serial.println("------------------------------------");
+    Serial.println();
+ }else{
+    Serial.println("FAILED");
+    Serial.println("REASON: " + firebaseData.errorReason());
+    Serial.println("------------------------------------");
+    Serial.println();
+  }
+delay(300);
+ }
+
+
+
+void update_power_status(){
+if(Firebase.setString(firebaseData, "/P1", String())){
+    Serial.println("PASSED");
+    Serial.println("PATH: " + firebaseData.dataPath());
+    Serial.println("TYPE: " + firebaseData.dataType());
+    Serial.println("ETag: " + firebaseData.ETag());
+    Serial.println("------------------------------------");
+    Serial.println();
+}else{
+    Serial.println("FAILED");
+    Serial.println("REASON: " + firebaseData.errorReason());
+    Serial.println("------------------------------------");
+    Serial.println();
+}   
+}
+
+
+
+void updateLed(){
+digitalWrite(Relay1, load1);
+digitalWrite(Relay2, load2);
+digitalWrite(Relay3, load3);
+digitalWrite(Relay4, load4);  
+digitalWrite(Relay5, load5);
+digitalWrite(Relay6, load6);
+digitalWrite(Relay7, load7);
+digitalWrite(Relay8, load8);  
+  update_power_status();   
+updateEEPROM();
+}
+
+void updateEEPROM(){
+  EEPROM.put(1, load1);
+  EEPROM.put(2, load2);
+  EEPROM.put(3, load3);
+  EEPROM.put(4, load4);
+  EEPROM.put(5, load5);
+  EEPROM.put(6, load6);
+  EEPROM.put(7, load7);
+  EEPROM.put(8, load8);
+  EEPROM.commit(); 
+}
+
+
